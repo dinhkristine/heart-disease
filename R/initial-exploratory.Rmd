@@ -1,0 +1,127 @@
+---
+title: "Initial Variable Exploratory"
+author: "Kristine Dinh"
+date: "4/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+```
+
+
+```{r load_libraries}
+
+library(tidyverse)
+library(magrittr)
+library(broom)
+library(kableExtra)
+library(knitr)
+
+```
+
+
+```{r load_data}
+
+setwd(here::here())
+
+source("R/data.R")
+
+```
+
+
+```{r function}
+
+Explore <- function(df, group, reorder = FALSE){
+  
+  print_list <- list()
+  
+  df %<>% select(dx_heart, xvar = group)
+  
+  df_group <- df %>% 
+    group_by(xvar) %>% 
+    summarise(count = n(), 
+              prop = mean(dx_heart))
+  
+  ratio <- max(df_group$count) / max(df_group$prop)
+  
+  if(reorder == TRUE){
+    plot <- ggplot(df_group, aes(x = reorder(xvar, -count), group = 1))
+  } else if (reorder == FALSE) {
+    plot <- ggplot(df_group, aes(x = xvar, group = 1))
+  }
+  
+  
+  plot <- plot + 
+    geom_bar(aes(y = count), stat = "identity", col = "black") + 
+    geom_point(aes(y = prop * ratio)) + 
+    geom_line(aes(y = prop * ratio)) + 
+    scale_y_continuous(sec.axis = sec_axis(~./ratio, name = "avg prop of having heart disease")) +
+    labs(title = paste("distribution plot of", group), 
+         subtitle = "with avg prop of getting diagnosed with heart disease") + 
+    theme_minimal()
+  
+  distribution_table <- df_group %>%
+    kable(digits = 4, caption = "distribution table") %>% 
+    kable_styling("bordered", full_width = FALSE)
+    
+  fit <- glm(dx_heart ~ ., data = df, family = "binomial")
+  
+  tidy <- tidy(fit)
+  
+  confint <- confint(fit)
+  
+  summary_statistics <- cbind(tidy, confint) %>% 
+    kable(row.names = FALSE, digits = 3, caption = "summary statistics") %>% 
+    kable_styling("bordered", full_width = FALSE)
+  
+  print_list$plot <- plot
+  print_list$distribution_table <- distribution_table
+  print_list$summary_statistics <- summary_statistics
+  
+  return(print_list)
+}
+
+```
+
+
+#### Gender 
+
+```{r}
+
+gender <- Explore(data, "gender", reorder = TRUE)
+
+gender$plot
+
+gender$distribution_table
+
+gender$summary_statistics
+
+```
+
+
+#### Age
+
+```{r}
+
+age <- Explore(data, "age")
+
+age$plot
+
+age$summary_statistics
+
+```
+
+
+
+
+
+
+
+
+
+
+
+

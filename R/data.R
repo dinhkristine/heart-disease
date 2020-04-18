@@ -38,6 +38,9 @@ data %<>%
       exercise_angina == 0 ~ "no"))
 
 
+#### set reference level #### 
+
+data$gender %<>% as.factor() %>% relevel(ref = "male")
 
 
 # > 1. age
