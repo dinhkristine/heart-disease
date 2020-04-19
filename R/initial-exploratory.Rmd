@@ -55,12 +55,13 @@ Explore <- function(df, group, reorder = FALSE){
   
   
   plot <- plot + 
-    geom_bar(aes(y = count), stat = "identity", col = "black") + 
-    geom_point(aes(y = prop * ratio)) + 
-    geom_line(aes(y = prop * ratio)) + 
-    scale_y_continuous(sec.axis = sec_axis(~./ratio, name = "avg prop of having heart disease")) +
-    labs(title = paste("distribution plot of", group), 
-         subtitle = "with avg prop of getting diagnosed with heart disease") + 
+    geom_bar(aes(y = count), stat = "identity", col = "black", fill = "grey") + 
+    geom_point(aes(y = prop * ratio), col = "red", size = 2) + 
+    geom_line(aes(y = prop * ratio), col = "red", size = 1) + 
+    scale_y_continuous(sec.axis = sec_axis(~./ratio, name = "Average prop of having heart disease")) +
+    labs(title = paste("Distribution plot of", group), 
+         subtitle = "With Average proportion of getting diagnosed with heart disease") + 
+    labs(x = group) + 
     theme_minimal()
   
   distribution_table <- df_group %>%
@@ -87,7 +88,7 @@ Explore <- function(df, group, reorder = FALSE){
 ```
 
 
-#### Gender 
+#### **Gender** 
 
 ```{r}
 
@@ -102,7 +103,7 @@ gender$summary_statistics
 ```
 
 
-#### Age
+#### **Age**
 
 ```{r}
 
@@ -113,6 +114,183 @@ age$plot
 age$summary_statistics
 
 ```
+
+
+**Chest Pain Type**
+
+```{r}
+
+chest_pain_type <- Explore(data, "chest_pain_type")
+
+chest_pain_type$plot
+
+chest_pain_type$distribution_table
+
+chest_pain_type$summary_statistics
+
+```
+
+
+#### **Resting Blood Pressure**
+
+```{r}
+
+rest_bp_bins <- Explore(data, "rest_bp_bins")
+
+rest_bp_bins$plot
+
+rest_bp <- Explore(data, "rest_bp")
+
+rest_bp$summary_statistics
+
+```
+
+
+**Serum Cholestoral in mg/dl**
+
+```{r}
+
+chol_bins <- Explore(data, "chol_bins")
+
+chol_bins$plot
+
+chol <- Explore(data, "chol")
+
+chol$summary_statistics
+
+```
+
+
+**Fasting Blood Sugar > 120 mg/dl**
+
+```{r}
+
+fbs <- Explore(data, "fbs", reorder = TRUE)
+
+fbs$plot
+
+fbs$distribution_table
+
+fbs$summary_statistics
+
+```
+
+
+**Resting Electrocardiographic Results**
+
+```{r}
+
+rest_ecg <- Explore(data, "rest_ecg")
+
+rest_ecg$plot
+
+rest_ecg$distribution_table
+
+rest_ecg$summary_statistics
+
+```
+
+
+**Maximum Heart Rate Achieved**
+
+```{r}
+
+max_heart_rate_bins <- Explore(data, "max_heart_rate_bins")
+
+max_heart_rate_bins$plot
+
+max_heart_rate <- Explore(data, "max_heart_rate")
+
+max_heart_rate$summary_statistics
+
+```
+
+
+**Exercise Induced Angina**
+
+```{r}
+
+exercise_angina <- Explore(data, "exercise_angina", reorder = TRUE)
+
+exercise_angina$plot
+
+exercise_angina$distribution_table
+
+exercise_angina$summary_statistics
+
+```
+
+
+**ST Depression Induced by Exercise Relative to Rest**
+
+```{r}
+
+oldpeak_bins <- Explore(data, "oldpeak_bins")
+
+oldpeak_bins$plot
+
+oldpeak <- Explore(data, "oldpeak")
+
+oldpeak$summary_statistics
+
+```
+
+
+**The Slope of the Peak Exercise ST Segment**
+
+```{r}
+
+slope <- Explore(data, "slope")
+
+slope$plot
+
+slope$distribution_table
+
+slope$summary_statistics
+
+```
+
+
+**Number of Major Vessels (0-3) Colored by Flourosopy**
+
+```{r}
+
+vessels <- Explore(data, "vessels")
+
+vessels$plot
+
+vessels$distribution_table
+
+vessels$summary_statistics
+
+```
+
+**Thal: 3 = normal; 6 = fixed defect; 7 = reversable defect**
+
+```{r}
+
+thal <- Explore(data, "thal")
+
+thal$plot
+
+thal$distribution_table
+
+thal$summary_statistics
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

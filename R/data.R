@@ -42,6 +42,19 @@ data %<>%
 
 data$gender %<>% as.factor() %>% relevel(ref = "male")
 
+data$fbs %<>% as.factor() %>% relevel(ref = "false")
+
+data$exercise_angina %<>% as.factor() %>% relevel(ref = "no")
+
+
+#### add bins ####
+
+data %<>%
+  mutate(rest_bp_bins = cut(rest_bp, breaks = seq(90, 200, 10)), 
+         chol_bins = cut(chol, breaks = seq(100, 700, 45)), 
+         max_heart_rate_bins = cut(max_heart_rate, seq(70, 220, 15)), 
+         oldpeak_bins = cut(oldpeak, seq(0, 6.4, 0.8), include.lowest = TRUE))
+
 
 # > 1. age
 # > 2. sex
