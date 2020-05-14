@@ -1,0 +1,186 @@
+---
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+y11<-c(30.9,31.9,31.3,32.1,30.9,31.3,31.3,32.1,30.3,32.2)
+y12<-c(30.7,31.6,31.1,31.0,31.2,31.7,31.8,33.0,30.9,32.1)
+y13<-c(30.9,31.6,31.0,31.7,30.5,31.4,31.8,31.7,30.8,32.2)
+y14<-c(30.9,31.7,31.3,31.3,30.8,31.2,31.7,31.5,30.6,32.4)
+y1<-cbind(y11,y12,y13,y14)
+
+y21 <- c(31.5, 31.2, 31.3, 30.4, 30.7, 29.8, 31.4, 30.9, 31.1, 31.3)
+y22 <- c(30.6, 31.2, 31.3, 30.8, 30.9, 30.8, 32.0, 32.4, 31.3, 31.5)
+y23 <- c(30.8, 31.1, 31.5, 30.4, 30.9, 30.9, 31.7, 31.8, 31.2, 31.6)
+y24 <- c(31.0, 31.3, 31.4, 30.2, 30.9, 30.8, 31.6, 31.9, 31.2, 31.7)
+y2 <- cbind(y21, y22, y23, y24)
+
+y <- rbind(y1, y2)
+
+group <- rep(1:2, c(10, 10))
+
+
+```
+
+
+```{r echo = FALSE}
+
+long.plot <- function(clus,time,x,xlabel="Time",ylabel="Data",sub=" ",main=" ",cex=1){
+  ord<-sort.list(clus)
+  nn<-length(clus)
+  clus<-clus[ord]
+  time<-time[ord]
+  x<-x[ord]
+  n<-seq(nn)
+  cnj<-n[!duplicated(clus)]-1
+  m<-length(cnj)   # number of clusters
+  cnj<-c(cnj,nn)   # vector of cluster sizes
+  
+  for (i in 1:m){
+    tj<-time[(cnj[i]+1):cnj[i+1]]
+    xj<-x[(cnj[i]+1):cnj[i+1]]
+    sel<-!is.na(tj) & !is.na(xj)
+    if(i==1)
+      plot(tj[sel],xj[sel],
+           xlim=c(min(time),max(time)),
+           ylim=c(min(x[!is.na(x)]), max(x[!is.na(x)])),
+           type='l',xlab=xlabel,ylab=ylabel,sub=sub,main=main,cex=cex)
+    else lines(tj[sel],xj[sel],lty=i)
+  }
+}
+
+```
+
+
+### Exploratory 
+
+```{r} 
+
+### group 1 
+
+id <- rep(1:10,rep(4,10))
+
+time <- rep(c(1:4),10)
+
+meas <- as.vector(t(y[1:10,]))
+
+long.plot(id, time, meas,
+          xlabel = 'Time (30 minutes)',
+          ylabel = 'Temperature of forehead (degree Celsius)',
+          main= 'Forehead Temperature Measurement for Group 1',cex=1.5)
+
+```
+
+
+- The trend overtime for group 1 seems like there is not a clear trend overall for all subjects.
+
+
+
+```{r} 
+
+### group 2
+
+meas <- as.vector(t(y[11:20,]))
+
+long.plot(id, time, meas,
+          xlabel = 'Time (30 minutes)',
+          ylabel = 'Temperature of forehead (degree Celsius)',
+          main= 'Forehead Temperature Measurement for Group 2',cex=1.5)
+
+```
+
+
+- The time trend for group 2 seems like on average as time interval increase, the temperature increases. 
+
+
+```{r}
+
+plot(c(1, 2, 3, 4),apply(y[1:10,],2,mean),
+     xlab='Time (30 minutes)',
+     ylab='Temperature of forehead (degree Celsius)',
+     type='b',cex=1.5,
+     ylim=c(30,35),
+     main='Sample means of temperature from group 1 & 2')
+lines(c(1, 2, 3, 4),apply(y[11:20,],2,mean),lty=2)
+points(c(1, 2, 3, 4),apply(y[11:20,],2,mean),cex=1.5)
+legend(8,30,c('Boys','Girls'),lty=1:2)
+
+
+```
+
+- The sample mean of two groups look very close to each other.
+
+
+
+### Test for Group Effect 
+
+```{r echo = TRUE}
+
+fit1 <- manova(y ~ group)
+
+summary(fit1, test = "Hotelling")
+
+
+```
+
+- Since p-value is very high compare to alpha level = 0.05, we can conclude that there is no statistically significant in group effect
+
+
+### Test for Group by Time Interaction 
+
+```{r echo = TRUE}
+
+S1<-cov(y[1:10,])
+S2<-cov(y[11:20,])
+S<-((10-1)*S1+(10-1)*S2)/(20-2)
+
+y1bar<-apply(y[1:10,],2,mean)
+y2bar<-apply(y[11:20,],2,mean)
+
+C<-matrix(c(-1,1,0,0,0,-1,1,0,0,0,-1,1),byrow=T,ncol=4)
+
+CSC <- C %*% S %*% t(C)
+
+Cdiffy <- C %*% (y1bar-y2bar)
+
+T2_int <- (10*10)/20 * t(Cdiffy) %*% solve(CSC) %*% Cdiffy
+
+F_int = (20-3-1)/((20-2)*3)*T2_int
+
+1-pf(F_int,3,16)
+
+```
+
+- There is no evidence to conclude that group by time interaction is significant 
+
+
+
+### Overall time trend 
+
+```{r echo = TRUE}
+
+newy1 <- c(y11, y21) - c(y12, y22)
+newy2 <- c(y12, y22) - c(y13, y23)
+newy3<- c(y13, y23) - c(y14, y24)
+newy<-cbind(newy1,newy2,newy3)
+
+Sstar<-cov(newy)
+ybarstar <- apply(newy,2,mean)
+T2_trend <- 20*t(ybarstar) %*% solve(Sstar) %*% ybarstar
+
+F_trend <- (20-4+1)/(19*3) *T2_trend
+
+1-pf(F_trend, 3, 17)
+
+```
+
+
+- There is no evidence to conclude that overall time trend if significant 
+
+
+

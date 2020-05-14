@@ -55,7 +55,7 @@ Explore <- function(df, group, reorder = FALSE){
   
   
   plot <- plot + 
-    geom_bar(aes(y = count), stat = "identity", col = "black", fill = "grey") + 
+    geom_bar(aes(y = count), stat = "identity", col = "black", fill = "#094457") + 
     geom_point(aes(y = prop * ratio), col = "red", size = 2) + 
     geom_line(aes(y = prop * ratio), col = "red", size = 1) + 
     scale_y_continuous(sec.axis = sec_axis(~./ratio, name = "Average prop of having heart disease")) +
